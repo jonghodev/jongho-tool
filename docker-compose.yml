@@ -1,0 +1,42 @@
+version: '3'
+services:
+  jenkins:
+    container_name: jenkins
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    networks:
+     - backend
+    volumes:
+      - "/var/jenkins:/var/jenkins_home"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  verdaccio:
+    image: verdaccio/verdaccio:4
+    container_name: verdaccio
+    restart: always
+    ports:
+      - "4873:4873"
+    networks:
+     - backend
+    volumes:
+      - "/var/verdaccio/conf:/verdaccio/conf"
+      - "/var/verdaccio/storage:/verdaccio/storage"
+      - "/var/verdaccio/plugins:/verdaccio/plugins"
+  nginx:
+    restart: always
+    container_name: "nginx"
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+     - backend
+networks:
+  backend:
+    driver: bridge
